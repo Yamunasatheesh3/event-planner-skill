@@ -1,0 +1,5 @@
+{
+    "utterance": "what's on my schedule today",
+    "intent_type": "DaysEventIntent",
+    "expected_dialog": "NoEventsToday"
+}
