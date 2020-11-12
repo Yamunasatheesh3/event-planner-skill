@@ -10,6 +10,71 @@ from datetime import datetime, timedelta
 from mycroft.util.parse import extract_datetime
 from requests import HTTPError
 
+from .mft_token_cred import MycroftTokenCredentials
+UTC_TZ = u'+00:00'
+def nice_time(dt, lang="en-us", speech=True, use_24hour=False,
+              use_ampm=False):
+    if use_24hour:
+        string = dt.strftime("%H:%M")
+    else:
+        if use_ampm:
+            string = dt.strftime("%I:%M %p")
+        else:
+            string = dt.strftime("%I:%M")
+        if string[0] == '0':
+            string = string[1:] 
+        return string
+
+    if not speech:
+        return string
+    
+    if use_24hour:
+        speak = ""
+
+        if string[0] == '0':
+            if string[1] == '0':
+                speak = "0 0"
+            else:
+                speak = "0 " + string[1]
+        else:
+            speak += string[0:2]
+
+        if string[3] == '0':
+            if string[4] == '0':
+                speak += " oclock" 
+            else:
+                speak += " o " + string[4]  
+        else:
+            if string[0] == '0':
+                speak += " " + string[3:5]
+            else:
+                speak += ":" + string[3:5]
+
+        return speak
+    else:
+        if lang.startswith("en"):
+            if dt.hour == 0 and dt.minute == 0:
+                return "midnight" 
+            if dt.hour == 12 and dt.minute == 0:
+                return "noon"  
+         
+        return string
+
+
+    
+def today_event(d):
+    return d.date() == datetime.today().date()
+
+
+def tomorrow_event(d):
+    return d.date() == datetime.today().date() + timedelta(days=1)
+
+
+def wholeday_event(e):
+    return 'dateTime' not in e['start']
+
+def remove_tz(string):
+    return string[:-6]
 
 class EventPlanner(MycroftSkill):
     def __init__(self):
@@ -17,7 +82,7 @@ class EventPlanner(MycroftSkill):
         super(EventPlanner, self).__init__('Event Planner')
 
     @property
-    def time_24hr(self):
+    def use_24hour(self):
         return self.config_core.get('time_format') == 'full'
         
     def credentials(self, msg=None):
@@ -71,10 +136,10 @@ class EventPlanner(MycroftSkill):
         else:
             event = events[0]
             LOG.debug(event)
-            if not is_wholeday_event(event):
+            if not wholeday_event(event):
                 start = event['start'].get('dateTime')
                 d = datetime.strptime(remove_tz(start), '%Y-%m-%dT%H:%M:%S')
-                starttime = nice_time(d, self.lang, True, self.time_24hr,
+                starttime = nice_time(d, self.lang, True, self.use_24hour,
                                       True)
                 startdate = d.strftime('%-d %B')
             else:
@@ -98,7 +163,7 @@ class EventPlanner(MycroftSkill):
                 dt = {'event': event['summary'],
                         'time': starttime}
                 self.speak_dialog('NextEvent', dt)
-            elif is_tomorrow(d):
+            elif tomorrow_event(d):
                 dt = {'Event': event['summary'],
                         'time': starttime}
                 self.speak_dialog('NextEventTomorrow', dt)
@@ -125,14 +190,14 @@ class EventPlanner(MycroftSkill):
                 self.speak_dialog('NoEvents')
         else:
             for e in events:
-                if is_wholeday_event(e):
+                if wholeday_event(e):
                     dt = {'event': e['summary']}
                     self.speak_dialog('DayEvent', dt)
                 else:
                     start = e['start'].get('dateTime', e['start'].get('date'))
                     d = datetime.strptime(remove_tz(start),
                                              '%Y-%m-%dT%H:%M:%S')
-                    starttime = nice_time(d, self.lang, True, self.time_24hr,
+                    starttime = nice_time(d, self.lang, True, self.use_24hour,
                                           True)
                     if is_today(d) or is_tomorrow(d) or True:
                         dt = {'event': e['summary'],
