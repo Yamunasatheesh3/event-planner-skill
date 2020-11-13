@@ -1,0 +1,8 @@
+add {eventsubject} to my calendar at {timedate}
+add {eventsubject} to the calendar at {timedate}
+add {eventsubject} to calendar at {timedate}
+schedule {eventsubject} at {timedate}
+add new {eventsubject} to my calendar at {timedate}
+add new {eventsubject} to the calendar at {timedate}
+add new {eventsubject} to calendar at {timedate}
+schedule new {eventsubject} at {timedate}
