@@ -66,7 +66,7 @@ def today_event(d):
 def tomorrow_event(d):
     return d.date() == datetime.today().date() + timedelta(days=1)
 
-def wholeday_event(e):
+def fullday_event(e):
     return 'dateTime' not in e['start']
 
 def remove_tz(string):
@@ -132,7 +132,7 @@ class EventPlanner(MycroftSkill):
         else:
             event = events[0]
             LOG.debug(event)
-            if not wholeday_event(event):
+            if not fullday_event(event):
                 start = event['start'].get('dateTime')
                 d = datetime.strptime(remove_tz(start), '%Y-%m-%dT%H:%M:%S')
                 starttime = nice_time(d, self.lang, True, self.use_24hour,
@@ -178,15 +178,15 @@ class EventPlanner(MycroftSkill):
         if not events:
             LOG.debug(start)
             d = datetime.strptime(start.split('.')[0], '%Y-%m-%dT%H:%M:%SZ')
-            if is_today(d):
+            if today_event(d):
                 self.speak_dialog('NoEventsToday')
-            elif is_tomorrow(d):
+            elif tomorrow_event(d):
                 self.speak_dialog('NoEventsTomorrow')
             else:
                 self.speak_dialog('NoEvents')
         else:
             for e in events:
-                if wholeday_event(e):
+                if fullday_event(e):
                     dt = {'event': e['summary']}
                     self.speak_dialog('DayEvent', dt)
                 else:
@@ -195,10 +195,10 @@ class EventPlanner(MycroftSkill):
                                              '%Y-%m-%dT%H:%M:%S')
                     starttime = nice_time(d, self.lang, True, self.use_24hour,
                                           True)
-                    if is_today(d) or is_tomorrow(d) or True:
+                    if today_event(d) or tomorrow_event(d) or True:
                         dt = {'event': e['summary'],
                                 'time': starttime}
-                        self.speak_dialog('NextAppointment', dt)   
+                        self.speak_dialog('NextEvent', dt)   
                         
                         
      def get_day(self, msg=None):
