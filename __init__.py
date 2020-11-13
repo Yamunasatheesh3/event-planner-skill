@@ -59,16 +59,12 @@ def nice_time(dt, lang="en-us", speech=True, use_24hour=False,
                 return "noon"  
          
         return string
-
-
-    
+      
 def today_event(d):
     return d.date() == datetime.today().date()
 
-
 def tomorrow_event(d):
     return d.date() == datetime.today().date() + timedelta(days=1)
-
 
 def wholeday_event(e):
     return 'dateTime' not in e['start']
