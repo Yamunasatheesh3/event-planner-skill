@@ -147,10 +147,10 @@ class EventPlanner(MycroftSkill):
             if starttime is None:
                 if d.date() == datetime.today().date():
                     dt = {'event': event['summary']}
-                    self.speak_dialog('NextEventToday', dt)
-                elif is_tomorrow(d):
+                    self.speak_dialog('NextEventInToday', dt)
+                elif tomorrow_event(d):
                     dt = {'event': event['summary']}
-                    self.speak_dialog('NextEventTomorrow', dt)
+                    self.speak_dialog('NextEventInTomorrow', dt)
                 else:
                     dt = {'event': event['summary'],
                             'date': startdate}
