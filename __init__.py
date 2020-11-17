@@ -207,7 +207,7 @@ class EventPlanner(MycroftSkill):
         d_lt = d.replace(hour=23, minute=59, second=59, tzinfo=None)
         d = d.isoformat() + 'Z'
         d_lt = d_lt.isoformat() + 'Z'
-        self.speak_interval(d, d_lt)
+        self.speak_info(d, d_lt)
         return
     
     def get_first(self, msg=None):
@@ -216,7 +216,7 @@ class EventPlanner(MycroftSkill):
         d_lt = d.replace(hour=23, minute=59, second=59, tzinfo=None)
         d = d.isoformat() + 'Z'
         d_lt = d_lt.isoformat() + 'Z'
-        self.speak_interval(d, d_lt, max_results=1)
+        self.speak_info(d, d_lt, max_results=1)
 
         
     @property
