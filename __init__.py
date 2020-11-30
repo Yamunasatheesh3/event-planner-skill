@@ -246,9 +246,14 @@ class EventPlanner(MycroftSkill):
         te = extract_datetime(msg.data['utterance'])[0] 
         te -= timedelta(seconds=self.location['timezone']['offset'] / 1000)
         et = te + timedelta(hours=1)
-        self.create_event(title, te, et)
+        self.create_event(subject, te, et)
         
-    def create_event(self, title, start_time, end_time, summary=None):
+    @intent_file_handler('DeleteEvent.intent')
+    def delete_event(self, message=None):
+        subject = self.get_response('whatEventToBeDeleted')
+        self.delete_event(subject)
+        
+    def create_event(self, subject, start_time, end_time, summary=None):
         start_time = start_time.strftime('%Y-%m-%dT%H:%M:00')
         stop_time = end_time.strftime('%Y-%m-%dT%H:%M:00')
         stop_time += UTC_TZ
@@ -269,6 +274,15 @@ class EventPlanner(MycroftSkill):
             self.speak_dialog('SuccessfullyAddedEvent', data)
         except:
             self.speak_dialog('FailedAddingEvent', data)
+            
+    def delete_event(self, subject, summary=None):
+        data = {'event': subject}
+        try:
+            self.service.events()\
+                .delete(calendarId='primary', body=event).execute()
+            self.speak_dialog('SuccessfullyDeletedEvent', data)
+        except:
+            self.speak_dialog('FailedDeletingEvent', data)
 
     @intent_file_handler('planner.event.intent')
     def handle_planner_event(self, message):
