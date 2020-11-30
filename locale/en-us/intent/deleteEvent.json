@@ -1,0 +1,5 @@
+{
+    "utterance": "Delete a event on my planner",
+    "intent_type": "DeleteEvent.intent",
+    "expected_dialog": "Successfullydeleted",
+}
